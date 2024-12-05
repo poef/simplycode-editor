@@ -1,12 +1,14 @@
-import {EditorView,basicSetup}     from 'codemirror'
+import {basicSetup}                from 'codemirror'
+import {EditorView, keymap}        from '@codemirror/view'
 import {EditorState, Compartment}  from '@codemirror/state'
 import {javascript, esLint}        from '@codemirror/lang-javascript'
 import {htmlLanguage, html}        from '@codemirror/lang-html'
 import {cssLanguage, css}          from '@codemirror/lang-css'
 import {linter, lintGutter}        from '@codemirror/lint'
-import {language}                  from "@codemirror/language"
-import { githubLight, githubDark } from '@uiw/codemirror-theme-github';
+import {language, indentUnit}      from '@codemirror/language'
+import {indentWithTab}             from '@codemirror/commands'
 
+import { githubLight, githubDark } from '@uiw/codemirror-theme-github'
 import globals                     from 'globals'
 import * as eslint                 from 'eslint-linter-browserify'
 
@@ -63,13 +65,21 @@ const state = EditorState.create({
         basicSetup, 
         wrapper.classList.contains('darkmode') ? githubDark : githubLight,
         languageConf.of(conf),
+        keymap.of([indentWithTab]),
         lintGutter(),
-        linter(esLint(new eslint.Linter(), config))
+        linter(esLint(new eslint.Linter(), config)),
+        indentUnit.of('    ')
     ]
 })
-
 
 const view = new EditorView({
     parent: wrapper,
     state
+})
+
+const updateListener = EditorView.updateListener.of(vu => {
+    if (vu.docChanged) {
+        const doc = vu.state.doc
+        const value = doc.toString()
+    }
 })
